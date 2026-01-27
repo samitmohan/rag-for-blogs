@@ -71,6 +71,7 @@ graph TD
 
 > You need to start the backend server. Run this command in your terminal:
 > uvicorn backend.app:app --port 8000
+
 > Once that is running:
 > - Retrieval will work (it uses the local faiss.index).
 > - Generation will fail unless you also have Ollama running with qwen2.5:7b.
@@ -91,6 +92,8 @@ The frontend (`index.html`) is designed to be hosted on GitHub Pages.
 - It auto-upgrades to **AI Chat Mode** if it detects the backend running locally on `localhost:8000`.
 
 ![ui](ui.png)
+
+[Blog on this](https://samitmohan.github.io/tech/2026/01/27/rag.html)
 
 ## License
 
