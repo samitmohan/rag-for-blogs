@@ -70,6 +70,7 @@ class VectorStore:
         with open(os.path.join(path, "metadata.json"), "w") as f:
             json.dump(self.metadata, f)
 
+    # loading it back 
     @classmethod
     def load(cls, path: str):
         index = faiss.read_index(os.path.join(path, "faiss.index"))

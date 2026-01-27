@@ -69,6 +69,12 @@ graph TD
     ```
     Visit `http://localhost:8080` to interact with the system.
 
+> You need to start the backend server. Run this command in your terminal:
+> uvicorn backend.app:app --port 8000
+> Once that is running:
+> - Retrieval will work (it uses the local faiss.index).
+> - Generation will fail unless you also have Ollama running with qwen2.5:7b.
+
 ## Project Structure
 
 - `backend/`: FastAPI server handling retrieval and generation requests.
