@@ -1,0 +1,413 @@
+<!-- ask/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Ask Samit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
+
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --accent: #ff3e00;
+      --bg: #fafafa;
+      --border: #222;
+      --card-bg: #fff;
+    }
+
+    body {
+      font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+      background: var(--bg);
+      margin: 0;
+      padding: 1rem;
+      color: #111;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 740px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border: 3px solid var(--border);
+      box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      font-family: inherit;
+      font-size: 16px;
+      padding: 15px;
+      border: 2px solid var(--border);
+      box-sizing: border-box;
+      outline: none;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    textarea:focus {
+      box-shadow: 0 0 0 4px rgba(255, 62, 0, 0.1);
+      border-color: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 1rem;
+    }
+
+    .main-btn {
+      padding: 12px 24px;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 16px;
+      background: var(--border);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .main-btn:hover {
+      background: var(--accent);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .main-btn:active {
+      transform: translate(0, 0);
+      box-shadow: none;
+    }
+
+    .main-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Output Sections */
+    .status-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2rem 0 1rem 0;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+
+    .status-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: var(--border);
+      color: white;
+      padding: 2px 6px;
+      display: inline-block;
+    }
+
+    .generate-btn {
+      font-family: inherit;
+      font-size: 0.8rem;
+      background: white;
+      border: 2px solid var(--border);
+      color: var(--border);
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      display: none; /* hidden by default */
+    }
+    
+    .generate-btn:hover {
+      background: #f0f0f0;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    #answer {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      margin-top: 1rem;
+    }
+    
+    #answer h1, #answer h2, #answer h3 {
+      font-family: "JetBrains Mono", monospace;
+      margin-top: 1.5rem;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+    #answer h2:first-child { display: none; }
+
+    /* Results / Chunks Styling */
+    .result-card {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      background: #fdfdfd;
+      transition: border-color 0.2s;
+    }
+    .result-card:hover {
+      border-color: #999;
+    }
+    .result-meta {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .result-meta a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .result-text {
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      color: #333;
+    }
+
+    /* Source List for AI Answer */
+    .sources-list {
+      font-size: 13px;
+      color: #555;
+      border-top: 2px dashed #ccc;
+      padding-top: 1rem;
+      margin-top: 2rem;
+    }
+    .source-item {
+      margin-bottom: 6px;
+    }
+    .source-item a {
+      color: var(--border);
+      text-decoration: none;
+      font-weight: bold;
+      border-bottom: 1px dotted #999;
+    }
+    .source-item a:hover {
+      color: var(--accent);
+    }
+
+    .hint { font-size: 11px; color: #999; }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ask Samit</h1>
+    <p class="subtitle">
+      Query the blog engine at <strong>samitmohan.github.io</strong>
+    </p>
+
+    <textarea
+      id="query"
+      placeholder="e.g. Why is softmax used in MNIST?"
+    ></textarea>
+
+    <div class="controls">
+      <div class="hint">CMD + ENTER</div>
+      <button id="ask-btn" class="main-btn">SEARCH</button>
+    </div>
+    
+    <!-- Output Area -->
+    <div id="output-area"></div>
+
+  </div>
+
+  <script>
+    // Configuration
+    const RETRIEVAL_BACKEND = 
+      location.hostname === "localhost" 
+        ? "http://localhost:8000" 
+        : "https://breakfast-rebel-destiny-roller.trycloudflare.com";
+        
+    const GENERATION_BACKEND = "http://localhost:8000";
+
+    // DOM Elements
+    const askBtn = document.getElementById("ask-btn");
+    const queryBox = document.getElementById("query");
+    const outputArea = document.getElementById("output-area");
+
+    let currentChunks = [];
+    let isLocalAvailable = false;
+
+    // Init Marked
+    marked.setOptions({ breaks: true, gfm: true });
+
+    // 1. Check Local Backend Availability
+    async function checkLocalBackend() {
+        try {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 1000);
+            await fetch(`${GENERATION_BACKEND}/status`, { signal: controller.signal });
+            clearTimeout(id);
+            isLocalAvailable = true;
+        } catch (e) {
+            isLocalAvailable = false;
+        }
+    }
+    checkLocalBackend();
+
+    // 2. Main Search
+    async function performSearch() {
+      const query = queryBox.value.trim();
+      if (!query) return;
+
+      askBtn.disabled = true;
+      askBtn.textContent = "SEARCHING...";
+      outputArea.style.opacity = "0.5";
+      outputArea.innerHTML = ""; 
+
+      try {
+        const resp = await fetch(`${RETRIEVAL_BACKEND}/retrieve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, top_k: 5 })
+        });
+        
+        const data = await resp.json();
+        const rawChunks = data.chunks || [];
+        
+        // DEDUPLICATION LOGIC
+        // Keep only the first occurrence of (post_title + section)
+        const seen = new Set();
+        currentChunks = [];
+        
+        rawChunks.forEach(c => {
+            const key = `${c.metadata.post_title}:${c.metadata.section}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                currentChunks.push(c);
+            }
+        });
+        
+        outputArea.style.opacity = "1";
+
+        if (currentChunks.length === 0) {
+            outputArea.innerHTML = `<div style="margin-top:2rem;"><em>No matches found.</em></div>`;
+            return;
+        }
+
+        renderSearchResults(currentChunks);
+
+      } catch (err) {
+        outputArea.style.opacity = "1";
+        outputArea.innerHTML = `<div style="color:red; margin-top:1rem;">Error: ${err.message}</div>`;
+      } finally {
+        askBtn.disabled = false;
+        askBtn.textContent = "SEARCH";
+      }
+    }
+
+    // 3. Generate Answer (Local Only)
+    async function generateAnswer() {
+        const btn = document.getElementById('gen-btn');
+        if(btn) {
+            btn.disabled = true;
+            btn.textContent = "THINKING...";
+        }
+        
+        const answerContainer = document.getElementById('ai-answer-container');
+        answerContainer.innerHTML = "<em>Analyzing content...</em>";
+
+        try {
+            const query = queryBox.value.trim();
+            const genResp = await fetch(`${GENERATION_BACKEND}/generate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, chunks: currentChunks })
+            });
+            const genData = await genResp.json();
+            
+            answerContainer.innerHTML = marked.parse(genData.answer);
+            if(btn) btn.style.display = "none"; // Hide button after success
+
+        } catch(err) {
+            answerContainer.innerHTML = `<span style="color:red">Error generating answer: ${err.message}</span>`;
+            if(btn) {
+                btn.disabled = false;
+                btn.textContent = "TRY AGAIN";
+            }
+        }
+    }
+
+    // --- Renderers ---
+
+    function renderSearchResults(chunks) {
+        let html = `
+        <div class="status-area">
+            <div class="status-label">Found ${chunks.length} excerpts</div>
+            ${isLocalAvailable 
+                ? `<button id="gen-btn" class="generate-btn" style="display:block" onclick="generateAnswer()">✨ GENERATE ANSWER</button>` 
+                : `<span style="font-size:10px; color:#999">AI Offline</span>`
+            }
+        </div>
+        
+        <div id="ai-answer-container"></div>
+        `;
+        
+        chunks.forEach(c => {
+            const title = c.metadata.post_title || "Untitled";
+            const section = c.metadata.section;
+            const url = c.metadata.url || "#";
+            const text = c.text;
+            
+            html += `
+            <div class="result-card">
+                <div class="result-meta">
+                    <a href="${url}" target="_blank">${title}</a> 
+                    <span style="color:#999">${section ? `› ${section}` : ""}</span>
+                </div>
+                <div class="result-text">${text}</div>
+            </div>`;
+        });
+        
+        outputArea.innerHTML = html;
+    }
+
+    // Events
+    askBtn.onclick = performSearch;
+    queryBox.addEventListener("keydown", e => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        performSearch();
+      }
+    });
+
+  </script>
+</body>
+</html>
