@@ -22,8 +22,13 @@ def generate(prompt):
         "stream": False
     }
 
+    headers = {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true"  # Bypasses ngrok's interstitial warning page
+    }
+
     try:
-        response = requests.post(OLLAMA_URL, json=payload)
+        response = requests.post(OLLAMA_URL, json=payload, headers=headers)
         response.raise_for_status()
         return response.json()["message"]["content"]
     except requests.exceptions.RequestException as e:
