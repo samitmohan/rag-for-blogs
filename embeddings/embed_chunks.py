@@ -5,16 +5,18 @@ Preserve metadata untouched
 Return embedding-ready records
 '''
 
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
+from fastembed import TextEmbedding
 from tqdm import tqdm
+import numpy as np
 
 _CACHED_MODEL = None
 
 def _get_model():
     global _CACHED_MODEL
     if _CACHED_MODEL is None:
-        _CACHED_MODEL = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        # BAAI/bge-small-en-v1.5 is default, light and good.
+        # It's an ONNX model, very low memory usage (~200MB or less)
+        _CACHED_MODEL = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
     return _CACHED_MODEL
 
 def _prepare_embedding_text(chunk):
@@ -24,6 +26,8 @@ def _prepare_embedding_text(chunk):
     if chunk_type == "code":
         return f"Code example:\n{text}"
     else:
+        # fastembed / BGE models are often fine with raw text, 
+        # but maintaining the format for now.
         return f"Explain the following text:\n{text}"
     
 
@@ -44,14 +48,18 @@ def embed_chunks(chunks):
     if not text_to_embed:
         return []
     
-    embeddings = embedding_model.embed_documents(text_to_embed)
+    # FastEmbed returns a generator of numpy arrays
+    embeddings_gen = embedding_model.embed(text_to_embed)
+    embeddings = list(embeddings_gen)
 
     # reassemble records
     for chunk, embedding_vector in zip(valid_chunks, embeddings):
+        # fastembed returns numpy array, convert to list if needed for consistency,
+        # but vector_store expects numpy or list.
         embedded_chunks.append({
             "id": chunk.get("id"),
             "text": chunk.get("text"),
-            "embedding": embedding_vector,
+            "embedding": embedding_vector, # Keep as numpy array or .tolist()
             "metadata": chunk.get("metadata", {})
         })
 
@@ -73,4 +81,4 @@ if __name__ == "__main__":
 
     embedded = embed_chunks(input_chunks)
     for record in embedded:
-        print(record["id"], len(record["embedding"])) # test_intro_0 384 test_intro_1 384
+        print(record["id"], len(record["embedding"])) # Should be 384 for BGE-small

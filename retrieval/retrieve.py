@@ -35,9 +35,6 @@ def retrieve(query: str, store: FaissVectorStore, k: int = 5):
 import sys
 import os
 
-# Add the project root to sys.path to allow importing from 'embeddings'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from embeddings.embed_chunks import embed_chunks
 from embeddings.vector_store import VectorStore
 

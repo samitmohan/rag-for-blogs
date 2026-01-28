@@ -2,9 +2,12 @@ fastapi
 uvicorn
 requests
 numpy
+fastapi
+uvicorn
+requests
+numpy
 faiss-cpu
-langchain-huggingface
-langchain-community
-sentence-transformers
+fastembed
 tqdm
 pydantic
+aiofiles

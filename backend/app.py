@@ -20,24 +20,25 @@ from generation.answer_with_citations import answer_with_citations
 DATA_DIR = "data"  # where FAISS + metadata will be stored
 FAISS_DIR = os.path.join(DATA_DIR, "faiss")
 
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI(title="RAG backend for samitmohan.github.io")
 
-# allow the GitHub Pages UI to call this API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # lock this down to your site URL in production
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
-)
+# ... (middleware config)
 
-# global store (in memory for server lifetime)
-vector_store: VectorStore = None
+# Mount static files if you have a folder for them (optional)
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
+def serve_index():
+    """
+    Serve the frontend index.html.
+    """
+    return FileResponse("index.html")
+
+@app.get("/health")
 def health_check():
-    """
-    Simple health check for cloud providers.
-    """
     return {"status": "ok", "service": "rag-backend"}
 
 class RetrieveRequest(BaseModel):
