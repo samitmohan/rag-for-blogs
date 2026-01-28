@@ -47,6 +47,7 @@ graph TD
 
 3.  **Download the LLM**:
     ```bash
+    ollama serve
     ollama pull qwen2.5:7b
     ```
 
@@ -65,7 +66,7 @@ graph TD
 
 3.  **Start the Frontend**:
     ```bash
-    python3 -m http.server 8080
+    click on index.html or just go to samitmohan.github.io/ask
     ```
     Visit `http://localhost:8080` to interact with the system.
 
@@ -73,6 +74,7 @@ graph TD
 > uvicorn backend.app:app --port 8000
 
 > Once that is running:
+
 > - Retrieval will work (it uses the local faiss.index).
 > - Generation will fail unless you also have Ollama running with qwen2.5:7b.
 
@@ -88,10 +90,15 @@ graph TD
 ## Deployment
 
 The frontend (`index.html`) is designed to be hosted on GitHub Pages. 
+
 - It defaults to **Public Search Mode** (connecting to a public retrieval endpoint).
 - It auto-upgrades to **AI Chat Mode** if it detects the backend running locally on `localhost:8000`.
 
-![ui](ui.png)
+> How the main page looks like, you can test it [here](https://samitmohan.github.io/ask)
+![ui](ui1.png)
+
+> Generation
+![ui2](ui2.png)
 
 [Blog on this](https://samitmohan.github.io/tech/2026/01/27/rag.html)
 

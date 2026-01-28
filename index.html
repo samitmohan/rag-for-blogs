@@ -1,411 +1,454 @@
-<!-- ask/index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Ask Samit</title>
+  <title>ask</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
-
-  <!-- Markdown renderer -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+  
+  <!-- Markdown & Syntax Highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
   <style>
     :root {
-      --accent: #ff3e00;
-      --bg: #fafafa;
-      --border: #222;
-      --card-bg: #fff;
+      --bg: #ffffff;
+      --text: #202124;
+      --accent: #1a73e8;
+      --gray: #5f6368;
+      --light-gray: #f1f3f4;
+      --border: #dfe1e5;
+      --code-bg: #282c34; /* Atom One Dark bg */
     }
 
     body {
-      font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
+      color: var(--text);
       margin: 0;
-      padding: 1rem;
-      color: #111;
-      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
+    /* Centered Search State */
     .container {
-      max-width: 740px;
-      margin: 2rem auto;
-      background: var(--card-bg);
-      padding: 2.5rem;
-      border: 3px solid var(--border);
-      box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .container.has-results {
+      justify-content: flex-start;
+      padding-top: 40px;
+      height: auto;
+      min-height: 100vh;
     }
 
     h1 {
+      font-weight: 500;
       font-size: 2.5rem;
-      margin: 0 0 0.5rem 0;
-      letter-spacing: -1px;
-      text-transform: uppercase;
-    }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: #666;
       margin-bottom: 2rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 1rem;
+      color: #333;
+      letter-spacing: -1px;
+    }
+    
+    .container.has-results h1 {
+      display: none;
     }
 
-    .input-group {
+    /* Search Bar */
+    .search-box-wrapper {
+      width: 100%;
+      max-width: 650px;
       position: relative;
     }
 
-    textarea {
+    .search-box {
       width: 100%;
-      min-height: 120px;
-      font-family: inherit;
-      font-size: 16px;
-      padding: 15px;
-      border: 2px solid var(--border);
-      box-sizing: border-box;
-      outline: none;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 12px 20px;
+      box-shadow: 0 1px 6px rgba(32,33,36,.28);
       transition: all 0.2s;
+    }
+
+    .search-box:hover, .search-box:focus-within {
+      box-shadow: 0 1px 6px rgba(32,33,36,.28), 0 2px 4px rgba(0,0,0,0.1);
+      border-color: rgba(223,225,229,0);
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 0 10px;
+      font-family: inherit;
+    }
+
+    button.icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Results Area */
+    #results-area {
+      width: 100%;
+      max-width: 800px;
+      display: none;
+      margin-top: 30px;
+      animation: fadeIn 0.5s;
+      padding-bottom: 50px;
+    }
+
+    .container.has-results #results-area {
+      display: block;
+    }
+
+    /* AI Answer Section */
+    .ai-answer {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      border-top: 4px solid var(--accent);
+      position: relative;
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .ai-content {
+      line-height: 1.6;
+      font-size: 16px;
+      color: #373737;
+    }
+
+    .ai-content h1, .ai-content h2, .ai-content h3 { 
+      font-size: 1.1rem; 
+      margin-top: 1.5rem; 
+      margin-bottom: 0.5rem;
+      color: #202124;
+    }
+
+    /* Code Blocks - Fixed */
+    .ai-content pre {
+      background: var(--code-bg) !important;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 15px 0;
+      color: #abb2bf;
+    }
+    
+    .ai-content code {
+      font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+      font-size: 0.9em;
+    }
+    
+    .ai-content p > code {
+      background: rgba(27,31,35,0.05);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #d63384; /* Highlight inline code */
+    }
+
+    /* Sources */
+    .section-title {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #eee;
+    }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .source-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
       background: #fff;
     }
 
-    textarea:focus {
-      box-shadow: 0 0 0 4px rgba(255, 62, 0, 0.1);
-      border-color: var(--accent);
+    .source-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-color: #ccc;
+      transform: translateY(-1px);
     }
 
-    .controls {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-top: 1rem;
-      gap: 1rem;
-    }
-
-    .main-btn {
-      padding: 12px 24px;
-      font-family: inherit;
-      font-weight: bold;
-      font-size: 16px;
-      background: var(--border);
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-
-    .main-btn:hover {
-      background: var(--accent);
-      transform: translate(-2px, -2px);
-      box-shadow: 4px 4px 0px #000;
-    }
-
-    .main-btn:active {
-      transform: translate(0, 0);
-      box-shadow: none;
-    }
-
-    .main-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* Output Sections */
-    .status-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 2rem 0 1rem 0;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 0.5rem;
-    }
-
-    .status-label {
-      font-size: 0.75rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      background: var(--border);
-      color: white;
-      padding: 2px 6px;
-      display: inline-block;
-    }
-
-    .generate-btn {
-      font-family: inherit;
-      font-size: 0.8rem;
-      background: white;
-      border: 2px solid var(--border);
-      color: var(--border);
-      padding: 4px 10px;
-      cursor: pointer;
-      font-weight: bold;
-      display: none; /* hidden by default */
-    }
-    
-    .generate-btn:hover {
-      background: #f0f0f0;
-      border-color: var(--accent);
+    .source-title {
+      font-size: 15px;
+      font-weight: 500;
       color: var(--accent);
-    }
-    
-    .generate-btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    #answer {
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 17px;
-      line-height: 1.7;
-      margin-top: 1rem;
-    }
-    
-    #answer h1, #answer h2, #answer h3 {
-      font-family: "JetBrains Mono", monospace;
-      margin-top: 1.5rem;
-      border-left: 4px solid var(--accent);
-      padding-left: 10px;
-    }
-    #answer h2:first-child { display: none; }
-
-    /* Results / Chunks Styling */
-    .result-card {
-      border: 1px solid #ddd;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 4px;
-      background: #fdfdfd;
-      transition: border-color 0.2s;
-    }
-    .result-card:hover {
-      border-color: #999;
-    }
-    .result-meta {
-      font-size: 0.8rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
-    }
-    .result-meta a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .result-text {
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-      color: #333;
-    }
-
-    /* Source List for AI Answer */
-    .sources-list {
-      font-size: 13px;
-      color: #555;
-      border-top: 2px dashed #ccc;
-      padding-top: 1rem;
-      margin-top: 2rem;
-    }
-    .source-item {
       margin-bottom: 6px;
-    }
-    .source-item a {
-      color: var(--border);
-      text-decoration: none;
-      font-weight: bold;
-      border-bottom: 1px dotted #999;
-    }
-    .source-item a:hover {
-      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .hint { font-size: 11px; color: #999; }
+    .source-snippet {
+      font-size: 13px;
+      color: #4d5156;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     
+    .source-meta {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #70757a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Status & Utility */
+    .status-indicator {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gray);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ea4335; box-shadow: 0 0 0 2px rgba(234,67,53,0.2); }
+    .dot.online { background: #34a853; box-shadow: 0 0 0 2px rgba(52,168,83,0.2); }
+    
+    .pulse { animation: pulse-opacity 1.5s infinite; }
+    @keyframes pulse-opacity {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Ask Samit</h1>
-    <p class="subtitle">
-      Query the blog engine at <strong>samitmohan.github.io</strong>
-    </p>
 
-    <textarea
-      id="query"
-      placeholder="e.g. Why is softmax used in MNIST?"
-    ></textarea>
+  <div class="status-indicator" id="status-ind">
+    <div class="dot" id="status-dot"></div>
+    <span id="status-text">connecting...</span>
+  </div>
 
-    <div class="controls">
-      <div class="hint">CMD + ENTER</div>
-      <button id="ask-btn" class="main-btn">SEARCH</button>
-    </div>
+  <div class="container" id="main-container">
+    <h1>ask</h1>
     
-    <!-- Output Area -->
-    <div id="output-area"></div>
+    <div class="search-box-wrapper">
+      <div class="search-box">
+        <span style="font-size: 20px; margin-right: 15px; color: var(--gray);">🔍</span>
+        <input type="text" id="query-input" placeholder="e.g why is softmax used in LLMS?" autofocus>
+        <button class="icon-btn" onclick="performSearch()">➜</button>
+      </div>
+    </div>
 
+    <div id="results-area">
+      
+      <!-- AI Answer -->
+      <div id="ai-section" style="display:none;">
+        <div class="ai-answer">
+          <div class="ai-header">
+            <span id="ai-status-label">thoughts</span>
+          </div>
+          <div class="ai-content" id="ai-content"></div>
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="section-title">Retrieved Context</div>
+      <div class="sources-grid" id="sources-list"></div>
+    </div>
   </div>
 
   <script>
-    // Configuration
-    const RETRIEVAL_BACKEND = 
-      location.hostname === "localhost" 
-        ? "http://localhost:8000" 
-        : "https://breakfast-rebel-destiny-roller.trycloudflare.com";
-        
-    const GENERATION_BACKEND = "http://localhost:8000";
+    const API_BASE = "http://localhost:8000";
+    let isBackendReady = false;
 
-    // DOM Elements
-    const askBtn = document.getElementById("ask-btn");
-    const queryBox = document.getElementById("query");
-    const outputArea = document.getElementById("output-area");
+    const dom = {
+      container: document.getElementById('main-container'),
+      input: document.getElementById('query-input'),
+      results: document.getElementById('results-area'),
+      sources: document.getElementById('sources-list'),
+      aiSection: document.getElementById('ai-section'),
+      aiContent: document.getElementById('ai-content'),
+      aiHeader: document.getElementById('ai-status-label'),
+      statusDot: document.getElementById('status-dot'),
+      statusText: document.getElementById('status-text')
+    };
 
-    let currentChunks = [];
-    let isLocalAvailable = false;
+    // Initialize Marked
+    marked.setOptions({
+        gfm: true,
+        breaks: true
+    });
 
-    // Init Marked
-    marked.setOptions({ breaks: true, gfm: true });
-
-    // 1. Check Local Backend Availability
-    async function checkLocalBackend() {
-        try {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 1000);
-            await fetch(`${GENERATION_BACKEND}/status`, { signal: controller.signal });
-            clearTimeout(id);
-            isLocalAvailable = true;
-        } catch (e) {
-            isLocalAvailable = false;
+    // 1. Health Check
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/status`);
+        if (res.ok) {
+          isBackendReady = true;
+          dom.statusDot.classList.add('online');
+          dom.statusText.textContent = "LLM Online";
+        } else {
+          throw new Error("Not ready");
         }
+      } catch (e) {
+        isBackendReady = false;
+        dom.statusDot.classList.remove('online');
+        dom.statusText.textContent = "LLM Disconnected";
+      }
     }
-    checkLocalBackend();
+    checkHealth();
+    setInterval(checkHealth, 5000);
 
-    // 2. Main Search
+    // 2. Main Search Logic
     async function performSearch() {
-      const query = queryBox.value.trim();
+      const query = dom.input.value.trim();
       if (!query) return;
 
-      askBtn.disabled = true;
-      askBtn.textContent = "SEARCHING...";
-      outputArea.style.opacity = "0.5";
-      outputArea.innerHTML = ""; 
+      // UI Transition
+      dom.container.classList.add('has-results');
+      dom.sources.innerHTML = '<div style="grid-column: 1/-1; color:#888;">searching knowledge base...</div>';
+      dom.aiSection.style.display = 'none';
 
       try {
-        const resp = await fetch(`${RETRIEVAL_BACKEND}/retrieve`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, top_k: 5 })
+        // Step A: Retrieve (RAG Search)
+        const res = await fetch(`${API_BASE}/retrieve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, top_k: 3 })
         });
         
-        const data = await resp.json();
-        const rawChunks = data.chunks || [];
-        
-        // DEDUPLICATION LOGIC
-        // Keep only the first occurrence of (post_title + section)
-        const seen = new Set();
-        currentChunks = [];
-        
-        rawChunks.forEach(c => {
-            const key = `${c.metadata.post_title}:${c.metadata.section}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                currentChunks.push(c);
-            }
-        });
-        
-        outputArea.style.opacity = "1";
+        if (!res.ok) throw new Error("Retrieval Service Failed");
 
-        if (currentChunks.length === 0) {
-            outputArea.innerHTML = `<div style="margin-top:2rem;"><em>No matches found.</em></div>`;
-            return;
+        const data = await res.json();
+        const chunks = data.chunks || [];
+
+        renderSources(chunks);
+
+        // Step B: Generate Answer (Only if chunks exist)
+        if (chunks.length > 0) {
+            generateAnswer(query, chunks);
         }
 
-        renderSearchResults(currentChunks);
-
-      } catch (err) {
-        outputArea.style.opacity = "1";
-        outputArea.innerHTML = `<div style="color:red; margin-top:1rem;">Error: ${err.message}</div>`;
-      } finally {
-        askBtn.disabled = false;
-        askBtn.textContent = "SEARCH";
+      } catch (e) {
+        dom.sources.innerHTML = `<div style="grid-column: 1/-1; color:#ea4335;">System Error: ${e.message}</div>`;
       }
     }
 
-    // 3. Generate Answer (Local Only)
-    async function generateAnswer() {
-        const btn = document.getElementById('gen-btn');
-        if(btn) {
-            btn.disabled = true;
-            btn.textContent = "THINKING...";
-        }
-        
-        const answerContainer = document.getElementById('ai-answer-container');
-        answerContainer.innerHTML = "<em>Analyzing content...</em>";
+    function renderSources(chunks) {
+      if (chunks.length === 0) {
+        dom.sources.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; font-style:italic; padding: 20px;">dawg i dont know that kinda info i aint no snitch</div>';
+        return;
+      }
 
-        try {
-            const query = queryBox.value.trim();
-            const genResp = await fetch(`${GENERATION_BACKEND}/generate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query, chunks: currentChunks })
-            });
-            const genData = await genResp.json();
-            
-            answerContainer.innerHTML = marked.parse(genData.answer);
-            if(btn) btn.style.display = "none"; // Hide button after success
-
-        } catch(err) {
-            answerContainer.innerHTML = `<span style="color:red">Error generating answer: ${err.message}</span>`;
-            if(btn) {
-                btn.disabled = false;
-                btn.textContent = "TRY AGAIN";
-            }
-        }
+      dom.sources.innerHTML = chunks.map(c => `
+        <a href="${c.metadata.url || '#'}" target="_blank" class="source-card">
+          <div class="source-title">${c.metadata.post_title || 'Untitled Document'}</div>
+          <div class="source-snippet">${c.text}</div>
+          <div class="source-meta">
+             <span>📌 ${c.metadata.section || 'General'}</span>
+             <span>• ${(c.metadata.score || 0).toFixed(2)} match</span>
+          </div>
+        </a>
+      `).join('');
     }
 
-    // --- Renderers ---
+    async function generateAnswer(query, chunks) {
+      // Show loading state
+      dom.aiSection.style.display = 'block';
+      dom.aiHeader.textContent = "workin...";
+      dom.aiContent.innerHTML = '<span class="pulse">Synthesizing answer from sources...</span>';
 
-    function renderSearchResults(chunks) {
-        let html = `
-        <div class="status-area">
-            <div class="status-label">Found ${chunks.length} excerpts</div>
-            ${isLocalAvailable 
-                ? `<button id="gen-btn" class="generate-btn" style="display:block" onclick="generateAnswer()">✨ GENERATE ANSWER</button>` 
-                : `<span style="font-size:10px; color:#999">AI Offline</span>`
-            }
-        </div>
-        
-        <div id="ai-answer-container"></div>
-        `;
-        
-        chunks.forEach(c => {
-            const title = c.metadata.post_title || "Untitled";
-            const section = c.metadata.section;
-            const url = c.metadata.url || "#";
-            const text = c.text;
-            
-            html += `
-            <div class="result-card">
-                <div class="result-meta">
-                    <a href="${url}" target="_blank">${title}</a> 
-                    <span style="color:#999">${section ? `› ${section}` : ""}</span>
-                </div>
-                <div class="result-text">${text}</div>
-            </div>`;
+      try {
+        const res = await fetch(`${API_BASE}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, chunks })
         });
         
-        outputArea.innerHTML = html;
+        // Handle "LLM Offline" gracefully
+        if (!res.ok) {
+            throw new Error("LLM generation unavailable (please start Ollama / local model on your device localhost for this)");
+        }
+
+        const data = await res.json();
+        
+        dom.aiHeader.textContent = "thoughts";
+        dom.aiContent.innerHTML = marked.parse(data.answer);
+        
+        // Apply syntax highlighting
+        hljs.highlightAll();
+
+      } catch (e) {
+        console.warn("Generation failed:", e);
+        // Fallback UI: Hide AI section or show "Offline" badge
+        // Option A: Just hide it -> dom.aiSection.style.display = 'none';
+        // Option B: Show friendly message
+        dom.aiHeader.textContent = "⚠️ AI Offline";
+        dom.aiContent.innerHTML = `<span style="color:#5f6368; font-style:italic;">LLM generation is currently unavailable. Viewing search results only.</span>`;
+      }
     }
 
-    // Events
-    askBtn.onclick = performSearch;
-    queryBox.addEventListener("keydown", e => {
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        performSearch();
-      }
+    // Event Listeners
+    dom.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') performSearch();
     });
 
   </script>

@@ -138,7 +138,7 @@ def query_endpoint(req: RetrieveRequest):
     chunks = retrieval_resp["chunks"]
     
     if not chunks:
-        return {"answer": "I don't know based on the provided information.", "citations": []}
+        return {"answer": "dawg i don't have that info on me.", "citations": []}
 
     # 2. Generate
     gen_req = GenerateRequest(query=req.query, chunks=chunks)

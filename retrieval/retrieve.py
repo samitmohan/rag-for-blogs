@@ -84,6 +84,13 @@ def retrieve(query: str, store: VectorStore, k: int = 5):
         else:
             distance *= 1.15   # penalize (farther)
 
+        # Keyword boosting
+        query_terms = [w for w in query.lower().split() if len(w) > 3]
+        chunk_lower = text.lower()
+        for term in query_terms:
+            if term in chunk_lower:
+                distance *= 0.95  # slightly boost for every keyword match
+
         if len(text.split()) < 5: continue
 
         reranked.append({ "distance": distance, "chunk": chunk })
@@ -91,7 +98,19 @@ def retrieve(query: str, store: VectorStore, k: int = 5):
     # Sort by best (lowest) distance
     reranked.sort(key=lambda x: x["distance"])
 
-    return reranked[:k]
+    # Deduplicate: Keep only first occurrence of (post_title + section)
+    seen = set()
+    final_results = []
+    
+    for item in reranked:
+        c = item["chunk"]
+        # unique key based on file/title + section
+        key = f"{c['metadata'].get('post_title')}:{c['metadata'].get('section')}"
+        if key not in seen:
+            seen.add(key)
+            final_results.append(item)
+
+    return final_results[:k]
 
 if __name__ == "__main__":
     vector_store = VectorStore(dim=384)
