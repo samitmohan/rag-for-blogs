@@ -33,6 +33,13 @@ app.add_middleware(
 # global store (in memory for server lifetime)
 vector_store: VectorStore = None
 
+@app.get("/")
+def health_check():
+    """
+    Simple health check for cloud providers.
+    """
+    return {"status": "ok", "service": "rag-backend"}
+
 class RetrieveRequest(BaseModel):
     query: str
     top_k: int = 5
@@ -114,11 +121,15 @@ def load_index_on_start():
     When the backend starts, try to load the persisted index if present.
     """
     global vector_store
-    if os.path.exists(os.path.join(FAISS_DIR, "faiss.index")):
-        vector_store = VectorStore.load(FAISS_DIR)
-        print("Loaded vector store from disk")
-    else:
-        print("No persisted index found; call /ingest to build it")
+    try:
+        if os.path.exists(os.path.join(FAISS_DIR, "faiss.index")):
+            vector_store = VectorStore.load(FAISS_DIR)
+            print("Loaded vector store from disk")
+        else:
+            print("No persisted index found; call /ingest to build it")
+    except Exception as e:
+        print(f"Failed to load vector store: {e}")
+        vector_store = None
 
 @app.post("/retrieve")
 def retrieve_endpoint(req: RetrieveRequest):

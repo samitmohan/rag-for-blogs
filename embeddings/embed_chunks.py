@@ -9,6 +9,14 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 from tqdm import tqdm
 
+_CACHED_MODEL = None
+
+def _get_model():
+    global _CACHED_MODEL
+    if _CACHED_MODEL is None:
+        _CACHED_MODEL = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    return _CACHED_MODEL
+
 def _prepare_embedding_text(chunk):
     text = chunk.get("text", "").strip()
     chunk_type = chunk.get("metadata", {}).get("type", "text")
@@ -21,7 +29,7 @@ def _prepare_embedding_text(chunk):
 
 def embed_chunks(chunks):
     # Load embedding model
-    embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embedding_model = _get_model()
 
     embedded_chunks = []
     # batching can be added here for efficiency
