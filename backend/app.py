@@ -25,7 +25,12 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="RAG backend for samitmohan.github.io")
 
-# ... (middleware config)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins (including samitmohan.github.io)
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Mount static files if you have a folder for them (optional)
 # app.mount("/static", StaticFiles(directory="static"), name="static")
