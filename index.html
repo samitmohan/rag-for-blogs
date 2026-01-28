@@ -316,7 +316,10 @@
   </div>
 
   <script>
-    const API_BASE = "http://localhost:8000";
+    const API_BASE = 
+      location.hostname === "localhost" || location.hostname === "127.0.0.1"
+        ? "http://localhost:8000" 
+        : "https://REPLACE_WITH_YOUR_RENDER_URL.onrender.com";
     let isBackendReady = false;
 
     const dom = {
@@ -388,7 +391,13 @@
         }
 
       } catch (e) {
-        dom.sources.innerHTML = `<div style="grid-column: 1/-1; color:#ea4335;">System Error: ${e.message}</div>`;
+        let msg = `System Error: ${e.message}`;
+        if (e.message.includes("Failed to fetch")) {
+            msg = `<strong>Connection Failed:</strong> The Search Engine is offline.<br>
+            Please start the backend server:<br>
+            <code>uvicorn backend.app:app --host 0.0.0.0 --port 8000</code>`;
+        }
+        dom.sources.innerHTML = `<div style="grid-column: 1/-1; color:#ea4335; text-align:center;">${msg}</div>`;
       }
     }
 

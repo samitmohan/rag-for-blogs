@@ -56,15 +56,34 @@ def ingest(force_reindex: bool = False):
         "source_repo": f"https://github.com/{os.environ.get('GITHUB_REPO', 'samitmohan/samitmohan.github.io')}"
     }
 
+    import re # Ensure re is imported
+
     for filename, raw in posts:
         parsed = parse_github_markdown(raw)
         cleaned_sections = clean_parsed_content(parsed.get("sections", []))
+
+        # URL Construction
+        categories = parsed.get("metadata", {}).get("categories", "").strip()
+        # Handle "tech" or "tech, ai" -> take first
+        if "," in categories:
+            categories = categories.split(",")[0].strip()
+            
+        url = f"/{filename.replace('.md','.html')}" # fallback
+        
+        # Match YYYY-MM-DD-title.md
+        match = re.match(r"^(\d{4})-(\d{2})-(\d{2})-(.*)\.md$", filename)
+        if match:
+            year, month, day, slug = match.groups()
+            if categories:
+                url = f"/{categories}/{year}/{month}/{day}/{slug}.html"
+            else:
+                url = f"/{year}/{month}/{day}/{slug}.html"
 
         chunk_input = {
             "metadata": {
                 "post_title": parsed.get("metadata", {}).get("title", filename),
                 "date": parsed.get("metadata", {}).get("date"),
-                "url": f"/{filename.replace('.md','.html')}"  # adjust if you have slug logic
+                "url": url
             },
             "sections": cleaned_sections
         }

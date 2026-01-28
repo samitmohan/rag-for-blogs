@@ -59,6 +59,11 @@ def classify_intent(query):
     if code_score > text_score:
         return "code"
     return "text"
+
+def heuristic_is_code(text):
+    indicators = [" = ", "def ", "class ", "import ", "return ", "print(", "torch.", "nn.", "->", "{", "}", "plt.", "np."]
+    count = sum(1 for i in indicators if i in text)
+    return count >= 2
     
 def retrieve(query: str, store: VectorStore, k: int = 5):
     intent = classify_intent(query)
@@ -79,17 +84,41 @@ def retrieve(query: str, store: VectorStore, k: int = 5):
         chunk_type = chunk["metadata"].get("type", "text")
         text = chunk["text"]
 
-        if chunk_type == intent:
-            distance *= 0.85   # boost (closer)
-        else:
-            distance *= 1.15   # penalize (farther)
+        # Heuristic: treat code-like text as code
+        effective_chunk_type = chunk_type
+        if chunk_type == "text" and heuristic_is_code(text):
+            effective_chunk_type = "code"
 
-        # Keyword boosting
-        query_terms = [w for w in query.lower().split() if len(w) > 3]
-        chunk_lower = text.lower()
-        for term in query_terms:
-            if term in chunk_lower:
-                distance *= 0.95  # slightly boost for every keyword match
+        if effective_chunk_type == intent:
+            distance *= 0.5   # strong boost (closer)
+        else:
+            distance *= 2.0   # strong penalty (farther)
+        
+        # Section-based boosting for code
+        section_name = chunk["metadata"].get("section", "").lower()
+        if intent == "code" and "code" in section_name:
+             distance *= 0.8
+
+        # Hybrid Search: Lexical Overlap Boosting
+        # We calculate how many unique query terms are present in the chunk.
+        query_words = set([w.lower() for w in query.split() if len(w) > 2])
+        if query_words:
+            chunk_text_lower = text.lower()
+            matched_words = sum(1 for word in query_words if word in chunk_text_lower)
+            
+            # Coverage ratio: what % of query words were found?
+            coverage_ratio = matched_words / len(query_words)
+            
+            if coverage_ratio > 0:
+                # Stronger boost for higher coverage
+                # If coverage is 100%, distance is multiplied by 0.7
+                # If coverage is 50%, distance is multiplied by 0.85
+                lexical_boost = 1.0 - (0.3 * coverage_ratio)
+                distance *= lexical_boost
+                
+                # Bonus: Exact phrase match boost
+                if query.lower() in chunk_text_lower:
+                    distance *= 0.8
 
         if len(text.split()) < 5: continue
 
