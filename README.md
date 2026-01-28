@@ -105,3 +105,41 @@ The frontend (`index.html`) is designed to be hosted on GitHub Pages.
 ## License
 
 MIT
+
+## Running with Render + Ngrok (Production Setup)
+
+This project is deployed on **Render** (for the backend/retrieval) and uses your local laptop as the AI inference engine via **ngrok**. This allows for a free, high-performance RAG system.
+
+### 1. Start Your "AI Engine" (Local Laptop)
+You need to keep your laptop on with these two commands running to power the AI generation:
+
+**Terminal 1: Start Ollama**
+```bash
+# Allow connections from the internet (via ngrok)
+OLLAMA_HOST=0.0.0.0 OLLAMA_ORIGINS="*" ollama serve
+```
+
+**Terminal 2: Start the Tunnel**
+```bash
+ngrok http 11434
+```
+*Copy the forwarding URL (e.g., `https://your-url.ngrok-free.app`)*.
+
+### 2. Configure Render
+1. Go to your Render Dashboard -> Environment.
+2. Update the `OLLAMA_BASE_URL` variable with your ngrok URL:
+   `https://your-url.ngrok-free.app/api/chat`
+
+### 3. Rebuilding the Index
+Since Render has limited memory, if you add new blog posts, you should rebuild the index **locally** and push the changes:
+
+```bash
+# 1. Rebuild index on your laptop
+python3 local_ingest.py
+
+# 2. Push the updated index to GitHub
+git add data/faiss
+git commit -m "Update search index"
+git push
+```
+Render will automatically redeploy, and your new posts will be searchable in minutes.

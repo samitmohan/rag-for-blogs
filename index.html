@@ -316,10 +316,9 @@
   </div>
 
   <script>
-    const API_BASE = 
-      location.hostname === "localhost" || location.hostname === "127.0.0.1"
-        ? "http://localhost:8000" 
-        : "https://rag-for-blogs.onrender.com";
+    // Hardcoded to production backend for consistency
+    const API_BASE = "https://rag-for-blogs.onrender.com";
+    
     let isBackendReady = false;
 
     const dom = {
