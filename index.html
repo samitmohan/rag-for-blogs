@@ -450,7 +450,7 @@
         // Fallback UI: Hide AI section or show "Offline" badge
         // Option A: Just hide it -> dom.aiSection.style.display = 'none';
         // Option B: Show friendly message
-        dom.aiHeader.textContent = "⚠️ AI Offline";
+        dom.aiHeader.textContent = "AI Offline; try running a local model on localhost. Ollama is recommended.";
         dom.aiContent.innerHTML = `<span style="color:#5f6368; font-style:italic;">LLM generation is currently unavailable. Viewing search results only.</span>`;
       }
     }
