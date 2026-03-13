@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <title>ask</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
-  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>?</text></svg>">
+
   <!-- Markdown & Syntax Highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -19,7 +19,7 @@
       --gray: #5f6368;
       --light-gray: #f1f3f4;
       --border: #dfe1e5;
-      --code-bg: #282c34; /* Atom One Dark bg */
+      --code-bg: #282c34;
     }
 
     body {
@@ -32,7 +32,6 @@
       height: 100vh;
     }
 
-    /* Centered Search State */
     .container {
       flex: 1;
       display: flex;
@@ -57,7 +56,7 @@
       color: #333;
       letter-spacing: -1px;
     }
-    
+
     .container.has-results h1 {
       display: none;
     }
@@ -86,6 +85,14 @@
       border-color: rgba(223,225,229,0);
     }
 
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 15px;
+      color: var(--gray);
+      flex-shrink: 0;
+    }
+
     input {
       flex: 1;
       border: none;
@@ -104,6 +111,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 18px;
     }
 
     /* Results Area */
@@ -149,14 +157,13 @@
       color: #373737;
     }
 
-    .ai-content h1, .ai-content h2, .ai-content h3 { 
-      font-size: 1.1rem; 
-      margin-top: 1.5rem; 
+    .ai-content h1, .ai-content h2, .ai-content h3 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
       margin-bottom: 0.5rem;
       color: #202124;
     }
 
-    /* Code Blocks - Fixed */
     .ai-content pre {
       background: var(--code-bg) !important;
       padding: 16px;
@@ -165,17 +172,29 @@
       margin: 15px 0;
       color: #abb2bf;
     }
-    
+
     .ai-content code {
       font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
       font-size: 0.9em;
     }
-    
+
     .ai-content p > code {
       background: rgba(27,31,35,0.05);
       padding: 2px 5px;
       border-radius: 4px;
-      color: #d63384; /* Highlight inline code */
+      color: #d63384;
+    }
+
+    /* Cursor animation for streaming */
+    .streaming-cursor::after {
+      content: "|";
+      animation: blink 0.7s step-end infinite;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
     /* Sources */
@@ -190,7 +209,7 @@
       align-items: center;
       gap: 10px;
     }
-    
+
     .section-title::after {
       content: "";
       flex: 1;
@@ -242,7 +261,7 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    
+
     .source-meta {
       margin-top: 8px;
       font-size: 11px;
@@ -252,7 +271,7 @@
       gap: 5px;
     }
 
-    /* Status & Utility */
+    /* Status */
     .status-indicator {
       position: absolute;
       top: 15px;
@@ -265,14 +284,14 @@
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #ea4335; box-shadow: 0 0 0 2px rgba(234,67,53,0.2); }
     .dot.online { background: #34a853; box-shadow: 0 0 0 2px rgba(52,168,83,0.2); }
-    
+
     .pulse { animation: pulse-opacity 1.5s infinite; }
     @keyframes pulse-opacity {
       0% { opacity: 0.5; }
       50% { opacity: 1; }
       100% { opacity: 0.5; }
     }
-    
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -288,22 +307,24 @@
 
   <div class="container" id="main-container">
     <h1>ask</h1>
-    
+
     <div class="search-box-wrapper">
       <div class="search-box">
-        <span style="font-size: 20px; margin-right: 15px; color: var(--gray);">🔍</span>
-        <input type="text" id="query-input" placeholder="e.g why is softmax used in LLMS?" autofocus>
-        <button class="icon-btn" onclick="performSearch()">➜</button>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="query-input" placeholder="e.g. why is softmax used in LLMs?" autofocus>
+        <button class="icon-btn" onclick="performSearch()" aria-label="Search">&#x2192;</button>
       </div>
     </div>
 
     <div id="results-area">
-      
       <!-- AI Answer -->
       <div id="ai-section" style="display:none;">
         <div class="ai-answer">
           <div class="ai-header">
-            <span id="ai-status-label">thoughts</span>
+            <span id="ai-status-label">Answer</span>
           </div>
           <div class="ai-content" id="ai-content"></div>
         </div>
@@ -316,9 +337,8 @@
   </div>
 
   <script>
-    // Hardcoded to production backend for consistency
     const API_BASE = "https://rag-for-blogs.onrender.com";
-    
+
     let isBackendReady = false;
 
     const dom = {
@@ -333,132 +353,202 @@
       statusText: document.getElementById('status-text')
     };
 
-    // Initialize Marked
-    marked.setOptions({
-        gfm: true,
-        breaks: true
-    });
+    marked.setOptions({ gfm: true, breaks: true });
 
-    // 1. Health Check
+    // Health Check
     async function checkHealth() {
       try {
-        const res = await fetch(`${API_BASE}/status`);
+        const res = await fetch(`${API_BASE}/health`);
         if (res.ok) {
           isBackendReady = true;
           dom.statusDot.classList.add('online');
-          dom.statusText.textContent = "LLM Online";
+          dom.statusText.textContent = "Online";
         } else {
           throw new Error("Not ready");
         }
       } catch (e) {
         isBackendReady = false;
         dom.statusDot.classList.remove('online');
-        dom.statusText.textContent = "LLM Disconnected";
+        dom.statusText.textContent = "Offline";
       }
     }
     checkHealth();
     setInterval(checkHealth, 5000);
 
-    // 2. Main Search Logic
+    // Main Search - uses streaming endpoint
     async function performSearch() {
       const query = dom.input.value.trim();
       if (!query) return;
 
-      // UI Transition
       dom.container.classList.add('has-results');
-      dom.sources.innerHTML = '<div style="grid-column: 1/-1; color:#888;">searching knowledge base...</div>';
+      dom.sources.innerHTML = '<div style="grid-column: 1/-1; color:#888;">Searching knowledge base...</div>';
       dom.aiSection.style.display = 'none';
 
       try {
-        // Step A: Retrieve (RAG Search)
-        const res = await fetch(`${API_BASE}/retrieve`, {
+        // Try streaming endpoint first
+        const res = await fetch(`${API_BASE}/query/stream`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query, top_k: 3 })
         });
-        
-        if (!res.ok) throw new Error("Retrieval Service Failed");
 
-        const data = await res.json();
-        const chunks = data.chunks || [];
-
-        renderSources(chunks);
-
-        // Step B: Generate Answer (Only if chunks exist)
-        if (chunks.length > 0) {
-            generateAnswer(query, chunks);
+        if (!res.ok) {
+          // Fallback to non-streaming retrieve + generate
+          await fallbackSearch(query);
+          return;
         }
 
+        // Process SSE stream
+        dom.aiSection.style.display = 'block';
+        dom.aiHeader.textContent = "Generating answer...";
+        dom.aiContent.innerHTML = '<span class="streaming-cursor"></span>';
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        let buffer = '';
+        let renderTimeout = null;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const jsonStr = line.slice(6);
+            let event;
+            try { event = JSON.parse(jsonStr); } catch { continue; }
+
+            if (event.no_results) {
+              dom.aiSection.style.display = 'none';
+              dom.sources.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; font-style:italic; padding: 20px;">No relevant results found for this query.</div>';
+              return;
+            }
+
+            if (event.token) {
+              fullText += event.token;
+              // Debounce markdown re-render
+              if (renderTimeout) clearTimeout(renderTimeout);
+              renderTimeout = setTimeout(() => {
+                dom.aiContent.innerHTML = marked.parse(fullText) + '<span class="streaming-cursor"></span>';
+              }, 80);
+            }
+
+            if (event.error) {
+              dom.aiHeader.textContent = "Answer";
+              dom.aiContent.innerHTML = `<span style="color:#5f6368; font-style:italic;">Generation unavailable. Viewing search results only.</span>`;
+              // Still fetch sources via retrieve
+              await fetchAndRenderSources(query);
+              return;
+            }
+
+            if (event.done) {
+              if (renderTimeout) clearTimeout(renderTimeout);
+              dom.aiHeader.textContent = "Answer";
+              dom.aiContent.innerHTML = marked.parse(fullText);
+              hljs.highlightAll();
+              // Render sources from the retrieve endpoint
+              await fetchAndRenderSources(query);
+              return;
+            }
+          }
+        }
       } catch (e) {
         let msg = `System Error: ${e.message}`;
         if (e.message.includes("Failed to fetch")) {
-            msg = `<strong>Connection Failed:</strong> The Search Engine is offline.<br>
-            Please start the backend server:<br>
-            <code>uvicorn backend.app:app --host 0.0.0.0 --port 8000</code>`;
+          msg = `<strong>Connection Failed:</strong> The backend is offline.`;
         }
         dom.sources.innerHTML = `<div style="grid-column: 1/-1; color:#ea4335; text-align:center;">${msg}</div>`;
       }
     }
 
+    // Fallback: non-streaming retrieve + generate
+    async function fallbackSearch(query) {
+      try {
+        const res = await fetch(`${API_BASE}/retrieve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, top_k: 3 })
+        });
+        if (!res.ok) throw new Error("Retrieval failed");
+
+        const data = await res.json();
+        const chunks = data.chunks || [];
+        renderSources(chunks);
+
+        if (chunks.length > 0) {
+          dom.aiSection.style.display = 'block';
+          dom.aiHeader.textContent = "Generating answer...";
+          dom.aiContent.innerHTML = '<span class="pulse">Synthesizing answer from sources...</span>';
+
+          const genRes = await fetch(`${API_BASE}/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, chunks })
+          });
+
+          if (genRes.ok) {
+            const genData = await genRes.json();
+            dom.aiHeader.textContent = "Answer";
+            dom.aiContent.innerHTML = marked.parse(genData.answer);
+            hljs.highlightAll();
+          } else {
+            dom.aiSection.style.display = 'none';
+          }
+        }
+      } catch (e) {
+        dom.sources.innerHTML = `<div style="grid-column: 1/-1; color:#ea4335; text-align:center;">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function fetchAndRenderSources(query) {
+      try {
+        const res = await fetch(`${API_BASE}/retrieve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, top_k: 3 })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          renderSources(data.chunks || []);
+        }
+      } catch (e) {
+        // Sources are supplementary, do not block on failure
+      }
+    }
+
     function renderSources(chunks) {
       if (chunks.length === 0) {
-        dom.sources.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; font-style:italic; padding: 20px;">dawg i dont know that kinda info i aint no snitch</div>';
+        dom.sources.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; font-style:italic; padding: 20px;">No relevant results found for this query.</div>';
         return;
       }
 
       dom.sources.innerHTML = chunks.map(c => `
         <a href="${c.metadata.url || '#'}" target="_blank" class="source-card">
-          <div class="source-title">${c.metadata.post_title || 'Untitled Document'}</div>
-          <div class="source-snippet">${c.text}</div>
+          <div class="source-title">${c.metadata.post_title || 'Untitled'}</div>
+          <div class="source-snippet">${escapeHtml(c.text)}</div>
           <div class="source-meta">
-             <span>📌 ${c.metadata.section || 'General'}</span>
-             <span>• ${(c.metadata.score || 0).toFixed(2)} match</span>
+             <span>${c.metadata.section || 'General'}</span>
+             <span>&middot; ${c.metadata.type || 'text'}</span>
           </div>
         </a>
       `).join('');
     }
 
-    async function generateAnswer(query, chunks) {
-      // Show loading state
-      dom.aiSection.style.display = 'block';
-      dom.aiHeader.textContent = "workin...";
-      dom.aiContent.innerHTML = '<span class="pulse">Synthesizing answer from sources...</span>';
-
-      try {
-        const res = await fetch(`${API_BASE}/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, chunks })
-        });
-        
-        // Handle "LLM Offline" gracefully
-        if (!res.ok) {
-            throw new Error("LLM generation unavailable (please start Ollama / local model on your device localhost for this)");
-        }
-
-        const data = await res.json();
-        
-        dom.aiHeader.textContent = "thoughts";
-        dom.aiContent.innerHTML = marked.parse(data.answer);
-        
-        // Apply syntax highlighting
-        hljs.highlightAll();
-
-      } catch (e) {
-        console.warn("Generation failed:", e);
-        // Fallback UI: Hide AI section or show "Offline" badge
-        // Option A: Just hide it -> dom.aiSection.style.display = 'none';
-        // Option B: Show friendly message
-        dom.aiHeader.textContent = "AI Offline; try running a local model on localhost. Ollama is recommended.";
-        dom.aiContent.innerHTML = `<span style="color:#5f6368; font-style:italic;">LLM generation is currently unavailable. Viewing search results only.</span>`;
-      }
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     // Event Listeners
     dom.input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') performSearch();
     });
-
   </script>
 </body>
 </html>

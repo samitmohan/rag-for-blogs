@@ -1,0 +1,122 @@
+[
+  {
+    "query": "What is softmax and why is it used?",
+    "relevant_posts": ["hello world of neural networks"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "Show me a PyTorch neural network example",
+    "relevant_posts": ["hello world of neural networks", "numpy & pytorch for dummies"],
+    "relevant_sections": ["Code"],
+    "intent": "code"
+  },
+  {
+    "query": "How does KV cache work in transformers?",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["KV Cache", "KV Caching: Core Idea"],
+    "intent": "text"
+  },
+  {
+    "query": "What is RLHF?",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["RLHF: Reinforcement Learning from Human Feedback"],
+    "intent": "text"
+  },
+  {
+    "query": "Explain chain of thought prompting",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["Chain of Thought (CoT): Teaching Models to \"Think\"", "Chain of Thought in Prompts"],
+    "intent": "text"
+  },
+  {
+    "query": "Code for self attention mechanism",
+    "relevant_posts": ["all the math you need for AI", "AI engineering"],
+    "relevant_sections": ["Self Attention Code", "Self Attention Mechanism (how one word relates to itself and others)"],
+    "intent": "code"
+  },
+  {
+    "query": "What is flash attention?",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["Flash Attention Quick Review"],
+    "intent": "text"
+  },
+  {
+    "query": "How does RAG work?",
+    "relevant_posts": ["AI engineering", "building RAG for my website"],
+    "relevant_sections": ["RAG"],
+    "intent": "text"
+  },
+  {
+    "query": "Explain backpropagation and chain rule",
+    "relevant_posts": ["all the math you need for AI"],
+    "relevant_sections": ["Backpropagation", "More on Chain rule", "More on Backpropagation"],
+    "intent": "text"
+  },
+  {
+    "query": "What is gradient descent?",
+    "relevant_posts": ["all the math you need for AI"],
+    "relevant_sections": ["Gradient Descent", "Stochastic Gradient Descent (SGD)"],
+    "intent": "text"
+  },
+  {
+    "query": "How to read the DeepSeek v3 paper?",
+    "relevant_posts": ["how to read a paper (Deepseekv3)"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "What are scaling laws in AI?",
+    "relevant_posts": ["scaling laws"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "Show me Python tricks",
+    "relevant_posts": ["some python tricks"],
+    "relevant_sections": ["intro"],
+    "intent": "code"
+  },
+  {
+    "query": "How is CPython implemented?",
+    "relevant_posts": ["how is python written"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "What are MCP servers?",
+    "relevant_posts": ["mcp servers"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "Explain object detection with YOLO",
+    "relevant_posts": ["understanding object detection"],
+    "relevant_sections": ["intro"],
+    "intent": "text"
+  },
+  {
+    "query": "What is tokenization and how does it work?",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["Chapter 3: Tokenization - From Text to Numbers", "Tokenization in Practice"],
+    "intent": "text"
+  },
+  {
+    "query": "Mixture of experts architecture",
+    "relevant_posts": ["AI engineering"],
+    "relevant_sections": ["MOE (Mixture of experts)"],
+    "intent": "text"
+  },
+  {
+    "query": "How do embeddings work?",
+    "relevant_posts": ["all the math you need for AI", "AI engineering"],
+    "relevant_sections": ["Embeddings", "Embedding", "How are vectors constructed"],
+    "intent": "text"
+  },
+  {
+    "query": "Code example for cross entropy loss",
+    "relevant_posts": ["all the math you need for AI"],
+    "relevant_sections": ["Cross Entropy Loss Code"],
+    "intent": "code"
+  }
+]
